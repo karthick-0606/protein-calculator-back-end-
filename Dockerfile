@@ -1,14 +1,20 @@
-# Use official Java 17 image
+# ---------- STAGE 1 : Build ----------
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+
+WORKDIR /build
+
+COPY pom.xml .
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
+# ---------- STAGE 2 : Run ----------
 FROM eclipse-temurin:17-jdk-jammy
 
-# Set working directory
 WORKDIR /app
 
-# Copy exact jar file (Windows-safe)
-COPY target/protein-calculator-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /build/target/*.jar app.jar
 
-# Expose Spring Boot port
 EXPOSE 8080
 
-# Run application
 ENTRYPOINT ["java","-jar","app.jar"]
