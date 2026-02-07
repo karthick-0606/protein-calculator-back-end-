@@ -31,7 +31,7 @@ Render (Deployment)
 
 ▶️ Run Locally
 
-git clone https://github.com/karthick-0606/proteincalculator-back-end.git
+git clone https://github.com/karthick-0606/protein-calculator-back-end-.git
 cd protein-calculator
 mvn spring-boot:run
 
