@@ -1,7 +1,4 @@
-
 package com.example.protein_calculator.controller;
-
-import java.util.List;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,7 +15,7 @@ import com.example.protein_calculator.service.ProteinService;
 
 @RestController
 @RequestMapping("/api/protein")
-@CrossOrigin(origins = "*")   // ⭐ THIS IS THE KEY
+@CrossOrigin(origins = "*")
 public class ProteinController {
 
     private final ProteinService service;
@@ -28,7 +25,7 @@ public class ProteinController {
     }
 
     @GetMapping
-    public List<ProteinUser> getAll() {
+    public java.util.List<ProteinUser> getAll() {
         return service.getAllUsers();
     }
 

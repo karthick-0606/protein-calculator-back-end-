@@ -1,10 +1,10 @@
-
 package com.example.protein_calculator.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.protein_calculator.exception.ResourceNotFoundException;
 import com.example.protein_calculator.model.ProteinUser;
 import com.example.protein_calculator.repository.ProteinRepository;
 
@@ -17,47 +17,24 @@ public class ProteinService {
         this.repository = repository;
     }
 
-    // CREATE USER
+    // CREATE
     public ProteinUser createUser(ProteinUser user) {
-
-        if (user.getWeight() <= 0) {
-            throw new RuntimeException("Weight must be greater than 0");
-        }
-
-        double protein = calculateProtein(user.getWeight(), user.getGoal());
-        user.setProteinRequired(protein);
-
+        user.setProteinRequired(calculateProtein(user.getWeight(), user.getGoal()));
         return repository.save(user);
     }
 
-    // UPDATE SELECTED FIELDS
+    // PATCH UPDATE (selected fields)
     public ProteinUser updateSelectedFields(Long id, ProteinUser updated) {
-
         ProteinUser existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
-        if (updated.getName() != null) {
-            existing.setName(updated.getName());
-        }
+        // update fields
+        existing.setWeight(updated.getWeight());
+        existing.setHeight(updated.getHeight());
+        existing.setGoal(updated.getGoal());
 
-        if (updated.getAge() > 0) {
-            existing.setAge(updated.getAge());
-        }
-
-        if (updated.getHeight() > 0) {
-            existing.setHeight(updated.getHeight());
-        }
-
-        if (updated.getWeight() > 0) {
-            existing.setWeight(updated.getWeight());
-        }
-
-        if (updated.getGoal() != null) {
-            existing.setGoal(updated.getGoal());
-        }
-
-        // recalculate protein if weight or goal changed
-        double protein = calculateProtein(existing.getWeight(), existing.getGoal());
+        // recalculate protein
+        double protein = calculateProtein(updated.getWeight(), updated.getGoal());
         existing.setProteinRequired(protein);
 
         return repository.save(existing);
@@ -71,23 +48,20 @@ public class ProteinService {
     // GET USER BY ID
     public ProteinUser getUserById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
 
     // DELETE USER
     public void deleteUser(Long id) {
         if (!repository.existsById(id)) {
-            throw new RuntimeException("User not found with id: " + id);
+            throw new ResourceNotFoundException("User not found with id: " + id);
         }
         repository.deleteById(id);
     }
 
-    // PROTEIN CALCULATION LOGIC
+    // PROTEIN CALCULATION
     private double calculateProtein(double weight, String goal) {
-
-        if (weight <= 0 || goal == null) {
-            return 0;
-        }
+        if (goal == null) return 0;
 
         return switch (goal.toLowerCase()) {
             case "bulking" -> weight * 2.2;
