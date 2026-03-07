@@ -15,7 +15,7 @@ import com.example.protein_calculator.service.ProteinService;
 
 @RestController
 @RequestMapping("/api/protein")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "https://protein-calculator-front-end-7bi1.vercel.app")
 public class ProteinController {
 
     private final ProteinService service;
