@@ -8,6 +8,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "Protein Calculator Backend is Running 🚀";
+        return "Protein Calculator Backend is Running";
     }
 }
