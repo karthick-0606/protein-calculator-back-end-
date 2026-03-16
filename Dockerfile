@@ -13,7 +13,7 @@ FROM eclipse-temurin:17-jdk-jammy
 
 WORKDIR /app
 
-COPY --from=build /build/target/*.jar app.jar
+COPY --from=build /build/target/app.jar app.jar
 
 EXPOSE 8080
 
