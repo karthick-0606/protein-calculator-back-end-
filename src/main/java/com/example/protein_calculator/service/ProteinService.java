@@ -23,18 +23,43 @@ public class ProteinService {
         return repository.save(user);
     }
 
-    // PATCH UPDATE (selected fields)
-    public ProteinUser updateSelectedFields(Long id, ProteinUser updated) {
+    // PUT UPDATE
+    public ProteinUser updateUser(Long id, ProteinUser updated) {
+        if (updated == null) {
+            throw new IllegalArgumentException("Request body is required");
+        }
+
+        if (updated.getWeight() <= 0) {
+            throw new IllegalArgumentException("weight must be greater than 0");
+        }
+        if (updated.getGoal() == null || updated.getGoal().isBlank()) {
+            throw new IllegalArgumentException("goal is required");
+        }
+        if (updated.getAge() < 0) {
+            throw new IllegalArgumentException("age cannot be negative");
+        }
+        if (updated.getHeight() < 0) {
+            throw new IllegalArgumentException("height cannot be negative");
+        }
+
         ProteinUser existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
-        // update fields
+        // Update valid fields from request
+        if (updated.getName() != null && !updated.getName().isBlank()) {
+            existing.setName(updated.getName().trim());
+        }
+        if (updated.getAge() > 0) {
+            existing.setAge(updated.getAge());
+        }
         existing.setWeight(updated.getWeight());
-        existing.setHeight(updated.getHeight());
-        existing.setGoal(updated.getGoal());
+        if (updated.getHeight() > 0) {
+            existing.setHeight(updated.getHeight());
+        }
+        existing.setGoal(updated.getGoal().trim());
 
-        // recalculate protein
-        double protein = calculateProtein(updated.getWeight(), updated.getGoal());
+        // Recalculate protein safely and save
+        double protein = calculateProtein(existing.getWeight(), existing.getGoal());
         existing.setProteinRequired(protein);
 
         return repository.save(existing);
@@ -61,9 +86,14 @@ public class ProteinService {
 
     // PROTEIN CALCULATION
     private double calculateProtein(double weight, String goal) {
-        if (goal == null) return 0;
+        if (weight <= 0) {
+            throw new IllegalArgumentException("weight must be greater than 0");
+        }
+        if (goal == null || goal.isBlank()) {
+            throw new IllegalArgumentException("goal is required");
+        }
 
-        return switch (goal.toLowerCase()) {
+        return switch (goal.trim().toLowerCase()) {
             case "bulking" -> weight * 2.2;
             case "cutting" -> weight * 1.8;
             default -> weight * 1.6;
