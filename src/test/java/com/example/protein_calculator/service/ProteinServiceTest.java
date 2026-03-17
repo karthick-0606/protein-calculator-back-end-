@@ -1,5 +1,7 @@
 package com.example.protein_calculator.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 
@@ -186,5 +188,46 @@ class ProteinServiceTest {
         when(repository.existsById(2L)).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class, () -> service.deleteUser(2L));
+    }
+
+    @Test
+    void calculateProtein_withNonPositiveWeight_throwsIllegalArgument() throws Exception {
+        Method method = ProteinService.class.getDeclaredMethod("calculateProtein", double.class, String.class);
+        method.setAccessible(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+            try {
+                method.invoke(service, 0.0, "bulking");
+            } catch (InvocationTargetException e) {
+                throw (RuntimeException) e.getCause();
+            }
+        });
+
+        assertTrue(ex.getMessage().toLowerCase().contains("weight"));
+    }
+
+    @Test
+    void calculateProtein_withNullOrBlankGoal_throwsIllegalArgument() throws Exception {
+        Method method = ProteinService.class.getDeclaredMethod("calculateProtein", double.class, String.class);
+        method.setAccessible(true);
+
+        IllegalArgumentException exNull = assertThrows(IllegalArgumentException.class, () -> {
+            try {
+                method.invoke(service, 70.0, (Object) null);
+            } catch (InvocationTargetException e) {
+                throw (RuntimeException) e.getCause();
+            }
+        });
+
+        IllegalArgumentException exBlank = assertThrows(IllegalArgumentException.class, () -> {
+            try {
+                method.invoke(service, 70.0, " ");
+            } catch (InvocationTargetException e) {
+                throw (RuntimeException) e.getCause();
+            }
+        });
+
+        assertTrue(exNull.getMessage().toLowerCase().contains("goal"));
+        assertTrue(exBlank.getMessage().toLowerCase().contains("goal"));
     }
 }
