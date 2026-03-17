@@ -16,7 +16,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class CorsConfig implements WebMvcConfigurer {
 
     private static final List<String> ALLOWED_METHODS =
-        List.of("GET", "POST", "PUT", "DELETE", "OPTIONS");
+	    List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
 
     private final CorsProperties properties;
 
